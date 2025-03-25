@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: salessavvy-app
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "9090:9090"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/salessavvy
+      SPRING_DATASOURCE_USERNAME: anil
+      SPRING_DATASOURCE_PASSWORD: ANILanil62v
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.MySQL8Dialect
+    networks:
+      - salessavvy-network
+
+  db:
+    image: mysql:8.0
+    container_name: salessavvy-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: salessavvy
+      MYSQL_ROOT_PASSWORD: system
+    ports:
+      - "3307:3306"
+    networks:
+      - salessavvy-network
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+
+networks:
+  salessavvy-network:
+
+volumes:
+  mysql_data:
